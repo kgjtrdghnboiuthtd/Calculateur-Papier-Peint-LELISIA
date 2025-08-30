@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Papier Peint - Lelisia.com</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-glass: rgba(255, 255, 255, 0.02);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #888;
+            --text-tertiary: #666;
+            --text-accent: #aaa;
+            --button-bg: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+            --button-text: #000000;
+            --button-hover-shadow: rgba(255, 255, 255, 0.2);
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --input-focus-bg: rgba(255, 255, 255, 0.08);
+            --input-focus-border: rgba(255, 255, 255, 0.3);
+            --results-bg: rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-glass: rgba(0, 0, 0, 0.02);
+            --border-color: rgba(0, 0, 0, 0.1);
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-tertiary: #718096;
+            --text-accent: #2d3748;
+            --button-bg: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            --button-text: #ffffff;
+            --button-hover-shadow: rgba(0, 0, 0, 0.2);
+            --input-bg: rgba(0, 0, 0, 0.03);
+            --input-focus-bg: rgba(0, 0, 0, 0.05);
+            --input-focus-border: rgba(0, 0, 0, 0.2);
+            --results-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background: var(--input-focus-bg);
+        }
+
+        .theme-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .brand {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .brand a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .brand a:hover {
+            color: var(--text-primary);
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--input-focus-border);
+            background: var(--input-focus-bg);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .wall-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .wall-item {
+            margin-bottom: 12px;
+        }
+
+        .wall-input {
+            padding: 12px 16px;
+            font-size: 14px;
+        }
+
+        .add-btn, .remove-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .add-btn:hover {
+            background: var(--input-focus-bg);
+            border-color: var(--input-focus-border);
+        }
+
+        .remove-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border-radius: 50%;
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+        }
+
+        .remove-btn:hover {
+            background: rgba(255, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+
+        .dimensions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .results {
+            background: var(--results-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 32px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .results.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .results-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: var(--text-accent);
+            font-size: 14px;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tip {
+            background: var(--input-bg);
+            border-left: 3px solid var(--input-focus-border);
+            padding: 16px 20px;
+            margin-top: 24px;
+            border-radius: 0 12px 12px 0;
+            font-size: 14px;
+            color: var(--text-accent);
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .apply-tip-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .apply-tip-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .apply-tip-btn:active {
+            transform: scale(0.95);
+        }
+
+        .partner-section {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            margin-top: 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .partner-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            opacity: 0.7;
+        }
+
+        .partner-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .partner-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+
+        .partner-btn:active {
+            transform: scale(0.95);
+        }
+
+        .partner-btn.applied {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+
+        .partner-btn.applied:hover {
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+        }
+
+        .apply-tip-btn.applied {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .apply-tip-btn.applied:hover {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .share-btn {
+            background: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -5px var(--button-hover-shadow);
+        }
+
+        .share-btn:active {
+            transform: translateY(0);
+        }
+
+        .share-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .share-btn.copied {
+            background: #10b981;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+                margin: 10px;
+            }
+
+            .title {
+                font-size: 28px;
+            }
+
+            .dimensions-grid, .wall-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wall-grid {
+                grid-template-columns: 1fr 1fr auto;
+            }
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <svg class="theme-icon" id="themeIcon" viewBox="0 0 24 24">
+            <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/>
+        </svg>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="brand">
+                <a href="https://lelisia.com" target="_blank">
+                    Lelisia.com
+                </a>
+            </div>
+            <h1 class="title">Calculateur de Papier Peint</h1>
+            <p class="subtitle">Calculez précisément la quantité de papier peint nécessaire</p>
+        </div>
+
+        <form class="form-grid" id="calculatorForm">
+            <div class="input-group">
+                <label class="input-label">Murs à tapisser</label>
+                <div class="walls-container" id="wallsContainer">
+                    <div class="wall-item">
+                        <div class="wall-grid">
+                            <input type="number" class="input-field wall-input" placeholder="Largeur (m)" step="0.1" min="0">
+                            <input type="number" class="input-field wall-input" placeholder="Hauteur (m)" step="0.1" min="0">
+                            <button type="button" class="remove-btn" onclick="removeWall(this)" style="display: none;">×</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addWall()">+ Ajouter un mur</button>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Fenêtres</label>
+                <div class="openings-container" id="windowsContainer">
+                    <div class="opening-item">
+                        <div class="wall-grid">
+                            <input type="number" class="input-field opening-input" placeholder="Largeur (cm)" step="1" min="0">
+                            <input type="number" class="input-field opening-input" placeholder="Hauteur (cm)" step="1" min="0">
+                            <button type="button" class="remove-btn" onclick="removeOpening(this)" style="display: none;">×</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addOpening('windows')">+ Ajouter une fenêtre</button>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Portes</label>
+                <div class="openings-container" id="doorsContainer">
+                    <div class="opening-item">
+                        <div class="wall-grid">
+                            <input type="number" class="input-field opening-input" placeholder="Largeur (cm)" step="1" min="0">
+                            <input type="number" class="input-field opening-input" placeholder="Hauteur (cm)" step="1" min="0">
+                            <button type="button" class="remove-btn" onclick="removeOpening(this)" style="display: none;">×</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addOpening('doors')">+ Ajouter une porte</button>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">
+                    Dimensions du rouleau
+                    <span style="font-size: 12px; color: var(--text-tertiary); font-weight: 400; margin-left: 8px;">
+                        (Chez Lelisia, dimensions standards optimisées)
+                    </span>
+                </label>
+                <div class="dimensions-grid">
+                    <div>
+                        <input type="number" class="input-field" id="rollWidth" placeholder="Largeur (cm)" value="53" step="1" min="1">
+                    </div>
+                    <div>
+                        <input type="number" class="input-field" id="rollLength" placeholder="Longueur (m)" value="10" step="0.1" min="0.1">
+                    </div>
+                </div>
+                <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 6px; font-style: italic;">
+                    💡 Nos rouleaux utilisent des dimensions standards pour une pose optimale
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Prix au m²</label>
+                <input type="number" class="input-field" id="pricePerM2" placeholder="Prix au m²" value="34.9" step="0.1" min="0">
+                <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 6px; font-style: italic;">
+                    💰 Prix indicatif pour estimation budgétaire
+                </div>
+            </div>
+        </form>
+
+        <div class="results" id="results">
+            <h3 class="results-title">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Résultats
+            </h3>
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-label">Surface totale des murs</span>
+                    <span class="result-value" id="totalSurface">0 m²</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Surface nette (avec ouvertures)</span>
+                    <span class="result-value" id="netSurface">0 m²</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Nombre de lés nécessaires</span>
+                    <span class="result-value" id="stripsNeeded">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Longueur totale nécessaire</span>
+                    <span class="result-value" id="totalLength">0 m</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label highlight">Nombre de rouleaux</span>
+                    <span class="result-value highlight" id="rollsNeeded">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label highlight">Prix estimé</span>
+                    <span class="result-value highlight" id="estimatedPrice">0 €</span>
+                </div>
+            </div>
+            <div class="tip">
+                💡 <strong>Conseil :</strong> Il est recommandé d'ajouter 5-10% de papier peint supplémentaire pour les chutes et les réparations futures.
+                <button class="apply-tip-btn" onclick="applyExtraPercentage()" title="Appliquer +5%">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    +5%
+                </button>
+            </div>
+
+            <div class="partner-section">
+                🤝 <strong>Partenaire Lelisia :</strong> Bénéficiez de 20% de réduction sur votre commande !
+                <button class="partner-btn" onclick="applyPartnerDiscount()" title="Appliquer réduction partenaire">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    -20%
+                </button>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="share-btn" onclick="shareResults()" id="shareBtn">
+                    <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                    </svg>
+                    Partager le résultat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                // Icône soleil pour le mode clair
+                themeIcon.innerHTML = '<path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z"/>';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                // Icône lune pour le mode sombre
+                themeIcon.innerHTML = '<path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z"/>';
+            }
+        }
+
+        function addWall() {
+            const container = document.getElementById('wallsContainer');
+            const wallItem = document.createElement('div');
+            wallItem.className = 'wall-item';
+            
+            wallItem.innerHTML = `
+                <div class="wall-grid">
+                    <input type="number" class="input-field wall-input" placeholder="Largeur (m)" step="0.1" min="0">
+                    <input type="number" class="input-field wall-input" placeholder="Hauteur (m)" step="0.1" min="0">
+                    <button type="button" class="remove-btn" onclick="removeWall(this)">×</button>
+                </div>
+            `;
+            
+            container.appendChild(wallItem);
+            
+            // Ajouter les événements aux nouveaux inputs
+            wallItem.querySelectorAll('.wall-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value < 0) this.value = 0;
+                    calculateWallpaperRealTime();
+                });
+            });
+            
+            // Afficher les boutons de suppression sur tous les éléments s'il y en a plus d'un
+            const allItems = container.querySelectorAll('.wall-item');
+            if (allItems.length > 1) {
+                allItems.forEach(item => {
+                    const removeBtn = item.querySelector('.remove-btn');
+                    removeBtn.style.display = 'flex';
+                });
+            }
+        }
+
+        function removeWall(btn) {
+            const wallItem = btn.closest('.wall-item');
+            const container = wallItem.parentElement;
+            
+            wallItem.remove();
+            
+            // Cacher le bouton de suppression s'il ne reste qu'un élément
+            const remainingItems = container.querySelectorAll('.wall-item');
+            if (remainingItems.length === 1) {
+                const lastRemoveBtn = remainingItems[0].querySelector('.remove-btn');
+                lastRemoveBtn.style.display = 'none';
+            }
+            
+            // Recalculer en temps réel
+            calculateWallpaperRealTime();
+        }
+
+        function addOpening(type) {
+            const container = document.getElementById(type + 'Container');
+            const openingItem = document.createElement('div');
+            openingItem.className = 'opening-item';
+            
+            openingItem.innerHTML = `
+                <div class="wall-grid">
+                    <input type="number" class="input-field opening-input" placeholder="Largeur (cm)" step="1" min="0">
+                    <input type="number" class="input-field opening-input" placeholder="Hauteur (cm)" step="1" min="0">
+                    <button type="button" class="remove-btn" onclick="removeOpening(this)">×</button>
+                </div>
+            `;
+            
+            container.appendChild(openingItem);
+            
+            // Ajouter les événements aux nouveaux inputs
+            openingItem.querySelectorAll('.opening-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    if (this.value < 0) this.value = 0;
+                    calculateWallpaperRealTime();
+                });
+            });
+            
+            // Afficher les boutons de suppression sur tous les éléments s'il y en a plus d'un
+            const allItems = container.querySelectorAll('.opening-item');
+            if (allItems.length > 1) {
+                allItems.forEach(item => {
+                    const removeBtn = item.querySelector('.remove-btn');
+                    removeBtn.style.display = 'flex';
+                });
+            }
+        }
+
+        function removeOpening(btn) {
+            const openingItem = btn.closest('.opening-item');
+            const container = openingItem.parentElement;
+            
+            openingItem.remove();
+            
+            // Cacher le bouton de suppression s'il ne reste qu'un élément
+            const remainingItems = container.querySelectorAll('.opening-item');
+            if (remainingItems.length === 1) {
+                const lastRemoveBtn = remainingItems[0].querySelector('.remove-btn');
+                lastRemoveBtn.style.display = 'none';
+            }
+            
+            // Recalculer en temps réel
+            calculateWallpaperRealTime();
+        }
+
+        function calculateWalls() {
+            let totalWallsArea = 0;
+            
+            // Calculer la surface des murs
+            const wallInputs = document.querySelectorAll('#wallsContainer .wall-input');
+            for (let i = 0; i < wallInputs.length; i += 2) {
+                const width = parseFloat(wallInputs[i].value) || 0;
+                const height = parseFloat(wallInputs[i + 1].value) || 0;
+                totalWallsArea += width * height;
+            }
+            
+            return totalWallsArea;
+        }
+
+        function calculateOpenings() {
+            let totalOpeningsArea = 0;
+            
+            // Calculer la surface des fenêtres
+            const windowInputs = document.querySelectorAll('#windowsContainer .opening-input');
+            for (let i = 0; i < windowInputs.length; i += 2) {
+                const width = parseFloat(windowInputs[i].value) || 0;
+                const height = parseFloat(windowInputs[i + 1].value) || 0;
+                totalOpeningsArea += (width / 100) * (height / 100); // Convertir cm en m
+            }
+            
+            // Calculer la surface des portes
+            const doorInputs = document.querySelectorAll('#doorsContainer .opening-input');
+            for (let i = 0; i < doorInputs.length; i += 2) {
+                const width = parseFloat(doorInputs[i].value) || 0;
+                const height = parseFloat(doorInputs[i + 1].value) || 0;
+                totalOpeningsArea += (width / 100) * (height / 100); // Convertir cm en m
+            }
+            
+            return totalOpeningsArea;
+        }
+
+        function calculateWallpaperRealTime() {
+            // Reset des pourcentages supplémentaires
+            resetExtraPercentage();
+            resetPartnerDiscount();
+            
+            // Calcul de la surface des murs
+            const totalWallsArea = calculateWalls();
+            
+            // Vérifier si au moins un mur est défini
+            if (totalWallsArea <= 0) {
+                document.getElementById('results').classList.remove('show');
+                return;
+            }
+            
+            // Calcul des ouvertures
+            const openings = calculateOpenings();
+            
+            // Récupération des dimensions du rouleau et prix
+            const rollWidth = parseFloat(document.getElementById('rollWidth').value) / 100 || 0.53; // Convert cm to m
+            const rollLength = parseFloat(document.getElementById('rollLength').value) || 10;
+            const pricePerM2 = parseFloat(document.getElementById('pricePerM2').value) || 34.9;
+
+            // Surface nette (avec déduction des ouvertures)
+            const netSurface = Math.max(0, totalWallsArea - openings);
+            
+            // Calcul basé sur la surface nette réelle
+            const totalLength = netSurface / rollWidth;
+            const rollsNeeded = Math.ceil(totalLength / rollLength);
+            
+            // Pour le nombre de lés, on base aussi sur la surface nette
+            const stripsNeeded = Math.ceil(totalLength / 2.5); // Hauteur moyenne estimée à 2.5m
+            
+            // Calcul du prix estimé
+            const estimatedPrice = netSurface * pricePerM2;
+
+            // Affichage des résultats
+            document.getElementById('totalSurface').textContent = totalWallsArea.toFixed(1) + ' m²';
+            document.getElementById('netSurface').textContent = netSurface.toFixed(1) + ' m²';
+            document.getElementById('stripsNeeded').textContent = stripsNeeded;
+            document.getElementById('totalLength').textContent = totalLength.toFixed(1) + ' m';
+            document.getElementById('rollsNeeded').textContent = rollsNeeded;
+            document.getElementById('estimatedPrice').textContent = estimatedPrice.toFixed(2) + ' €';
+
+            // Afficher les résultats
+            document.getElementById('results').classList.add('show');
+        }
+
+        let extraPercentageApplied = false;
+        let partnerDiscountApplied = false;
+
+        function applyPartnerDiscount() {
+            const btn = document.querySelector('.partner-btn');
+            const priceElement = document.getElementById('estimatedPrice');
+            
+            if (!partnerDiscountApplied) {
+                // Appliquer -20%
+                const currentPrice = parseFloat(priceElement.textContent.replace(' €', ''));
+                const discountedPrice = currentPrice * 0.8; // -20%
+                
+                priceElement.textContent = discountedPrice.toFixed(2) + ' €';
+                
+                // Changer l'apparence du bouton
+                btn.classList.add('applied');
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                    Annuler
+                `;
+                btn.title = "Annuler la réduction";
+                partnerDiscountApplied = true;
+            } else {
+                // Retirer la réduction
+                const currentPrice = parseFloat(priceElement.textContent.replace(' €', ''));
+                const originalPrice = currentPrice / 0.8; // Retirer la réduction de 20%
+                
+                priceElement.textContent = originalPrice.toFixed(2) + ' €';
+                
+                // Remettre l'apparence normale du bouton
+                btn.classList.remove('applied');
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    -20%
+                `;
+                btn.title = "Appliquer réduction partenaire";
+                partnerDiscountApplied = false;
+            }
+        }
+
+        function resetPartnerDiscount() {
+            partnerDiscountApplied = false;
+            const btn = document.querySelector('.partner-btn');
+            if (btn) {
+                btn.classList.remove('applied');
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                    -20%
+                `;
+                btn.title = "Appliquer réduction partenaire";
+            }
+        }
+
+        function applyExtraPercentage() {
+            const btn = document.querySelector('.apply-tip-btn');
+            const rollsElement = document.getElementById('rollsNeeded');
+            const priceElement = document.getElementById('estimatedPrice');
+            
+            if (!extraPercentageApplied) {
+                // Appliquer +5%
+                const currentRolls = parseInt(rollsElement.textContent);
+                const currentPrice = parseFloat(priceElement.textContent.replace(' €', ''));
+                
+                const newRolls = Math.ceil(currentRolls * 1.05);
+                const newPrice = currentPrice * 1.05;
+                
+                rollsElement.textContent = newRolls;
+                priceElement.textContent = newPrice.toFixed(2) + ' €';
+                
+                // Changer l'apparence du bouton
+                btn.classList.add('applied');
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                    -5%
+                `;
+                btn.title = "Retirer -5%";
+                extraPercentageApplied = true;
+            } else {
+                // Retirer les 5%
+                const currentRolls = parseInt(rollsElement.textContent);
+                const currentPrice = parseFloat(priceElement.textContent.replace(' €', ''));
+                
+                const originalRolls = Math.ceil(currentRolls / 1.05);
+                const originalPrice = currentPrice / 1.05;
+                
+                rollsElement.textContent = originalRolls;
+                priceElement.textContent = originalPrice.toFixed(2) + ' €';
+                
+                // Remettre l'apparence normale du bouton
+                btn.classList.remove('applied');
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    +5%
+                `;
+                btn.title = "Appliquer +5%";
+                extraPercentageApplied = false;
+            }
+        }
+
+        function resetExtraPercentage() {
+            extraPercentageApplied = false;
+            const btn = document.querySelector('.apply-tip-btn');
+            btn.classList.remove('applied');
+            btn.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                +5%
+            `;
+            btn.title = "Appliquer +5%";
+        }
+
+        function shareResults() {
+            const shareBtn = document.getElementById('shareBtn');
+            
+            // Récupérer les résultats affichés
+            const totalSurface = document.getElementById('totalSurface').textContent;
+            const netSurface = document.getElementById('netSurface').textContent;
+            const rollsNeeded = document.getElementById('rollsNeeded').textContent;
+            const estimatedPrice = document.getElementById('estimatedPrice').textContent;
+            
+            // Créer le message de partage
+            const shareMessage = `🎨 CALCUL PAPIER PEINT 🎨
+
+📐 Surface totale des murs : ${totalSurface}
+📐 Surface nette : ${netSurface}
+📦 Nombre de rouleaux : ${rollsNeeded}
+💰 Prix estimé : ${estimatedPrice}
+
+💡 Conseil : Ajouter 5-10% pour les chutes et réparations
+
+Calculé avec ➡️ lelisia.com`;
+
+            // Essayer de partager nativement (mobile)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Calcul Papier Peint - Lelisia.com',
+                    text: shareMessage,
+                }).catch(() => {
+                    // Fallback si le partage natif échoue
+                    copyToClipboard(shareMessage, shareBtn);
+                });
+            } else {
+                // Fallback pour desktop - copier dans le presse-papiers
+                copyToClipboard(shareMessage, shareBtn);
+            }
+        }
+
+        function copyToClipboard(text, button) {
+            // Essayer l'API moderne
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopySuccess(button);
+                }).catch(() => {
+                    // Fallback pour navigateurs plus anciens
+                    fallbackCopyToClipboard(text, button);
+                });
+            } else {
+                // Fallback pour navigateurs plus anciens
+                fallbackCopyToClipboard(text, button);
+            }
+        }
+
+        function fallbackCopyToClipboard(text, button) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess(button);
+            } catch (err) {
+                console.error('Erreur lors de la copie:', err);
+                button.textContent = 'Erreur de copie';
+                setTimeout(() => {
+                    button.innerHTML = `
+                        <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/>
+                        </svg>
+                        Partager le résultat
+                    `;
+                }, 3000);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        function showCopySuccess(button) {
+            const originalContent = button.innerHTML;
+            button.classList.add('copied');
+            button.innerHTML = `
+                <svg class="share-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Copié dans le presse-papiers !
+            `;
+            
+            setTimeout(() => {
+                button.classList.remove('copied');
+                button.innerHTML = originalContent;
+            }, 3000);
+        }
+
+        // Validation en temps réel et calcul automatique
+        document.querySelectorAll('.input-field').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.value < 0) this.value = 0;
+                calculateWallpaperRealTime();
+            });
+        });
+
+        // Animation d'entrée au chargement
+        window.addEventListener('load', function() {
+            document.querySelector('.container').style.opacity = '0';
+            document.querySelector('.container').style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                document.querySelector('.container').style.transition = 'all 0.8s ease';
+                document.querySelector('.container').style.opacity = '1';
+                document.querySelector('.container').style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
